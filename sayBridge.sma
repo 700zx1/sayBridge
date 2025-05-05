@@ -1,5 +1,6 @@
 #include <amxmodx>
 #include <reapi>
+#include <sockets>
 
 new const HOST[] = "127.0.0.1";
 new const PORT = 1337;
@@ -11,16 +12,22 @@ public plugin_init() {
 
 public onSayText(msgid, dest, id) {
     static message[192];
-    get_user_msg_arg_string(2, message, charsmax(message));
+    get_msg_arg_string(2, message, charsmax(message));
 
     send_to_python(message);
     return PLUGIN_CONTINUE;
 }
 
 send_to_python(const text[]) {
-    new socket = socket_open(HOST, PORT, SOCKET_TCP, SOCKET_NBIO);
-    if (socket > 0) {
-        socket_send(socket, text, strlen(text));
-        socket_close(socket);
+    new error
+	new sock = socket_open(HOST, PORT, SOCKET_TCP, error);
+    if (sock > 0 && socket_is_writable(sock)) {
+        socket_send(sock, text, strlen(text));
+        socket_close(sock);
     }
+	else {
+		if (sock > 0) {
+			socket_close(sock);
+		}
+	}
 }
