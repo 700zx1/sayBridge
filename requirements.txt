@@ -1,1 +1,4 @@
+simpleaudio
+Pillow
+pystray
 TTS
