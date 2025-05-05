@@ -1,4 +1,7 @@
+import os
 import socket
+import simpleaudio as sa
+
 from TTS.api import TTS
 
 tts = TTS(model_name="tts_models/en/ljspeech/tacotron2-DDC", progress_bar=False)
@@ -9,7 +12,12 @@ PORT = 1337
 def speak_text(text):
     print(f"[TTS] {text}")
     tts.tts_to_file(text=text, file_path="say.wav")
-    os.system("aplay say.wav")
+    try:
+        wave_obj = sa.WaveObject.from_wave_file("say.wav")
+        play_obj = wave_obj.play()
+        play_obj.wait_done()
+    except Exception as e:
+        print("[TTS Playback Error]", e)
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.bind((HOST, PORT))
